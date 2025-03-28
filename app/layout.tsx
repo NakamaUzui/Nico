@@ -12,7 +12,7 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfa
 
 export const metadata: Metadata = {
   title: "NICO - Bestsellers",
-  description: "Discover our bestselling luxury fashion items",
+  description: "Entdecken Sie unsere Kollektion zeitloser, luxuriöser Kleidung und Accessoires",
     generator: 'v0.dev'
 }
 
