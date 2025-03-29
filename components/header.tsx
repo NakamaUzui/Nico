@@ -1,13 +1,15 @@
 "use client"
 
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
-import { useState, useEffect, useRef } from "react"
-import { ChevronDown, SearchIcon, ShoppingBag, Menu, X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useStore } from "@/context/store-context"
-import { useTranslation } from "@/context/translation-context"
+import { ChevronDown, Menu, Search as SearchIcon, ShoppingBag, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import Cart from "@/components/cart"
 import Search from "@/components/search"
+import { useStore } from "@/context/store-context"
+import { useLanguage } from "@/context/language-context"
+import { translate } from "@/utils/translate"
 
 // Menü-Daten für die Dropdown-Menüs
 const menuData = {
@@ -37,17 +39,15 @@ const menuData = {
 }
 
 export default function Header() {
-  const { cart, setCartOpen, language, setLanguage, currency, setCurrency, setSearchOpen } = useStore()
-  const { translate } = useTranslation()
+  const { cart, setCartOpen, currency, setCurrency, setSearchOpen } = useStore()
+  const { language, setLanguage } = useLanguage()
 
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [currencyMenuOpen, setCurrencyMenuOpen] = useState(false)
-  const [languageMenuOpen, setLanguageMenuOpen] = useState(false)
 
   const currencyMenuRef = useRef<HTMLDivElement>(null)
-  const languageMenuRef = useRef<HTMLDivElement>(null)
 
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0)
 
@@ -61,9 +61,6 @@ export default function Header() {
     const handleClickOutside = (event: MouseEvent) => {
       if (currencyMenuRef.current && !currencyMenuRef.current.contains(event.target as Node)) {
         setCurrencyMenuOpen(false)
-      }
-      if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
-        setLanguageMenuOpen(false)
       }
     }
 
@@ -90,11 +87,6 @@ export default function Header() {
     setCurrencyMenuOpen(false)
   }
 
-  const handleLanguageChange = (newLanguage: "English" | "Français" | "Deutsch") => {
-    setLanguage(newLanguage)
-    setLanguageMenuOpen(false)
-  }
-
   return (
     <>
       <header
@@ -115,7 +107,7 @@ export default function Header() {
                 onMouseLeave={() => setActiveMenu(null)}
               >
                 <button className="flex items-center space-x-1 text-sm font-medium py-2">
-                  <span>{translate("SHOP MEN")}</span>
+                  <span>{translate("SHOP MEN", language)}</span>
                   <ChevronDown
                     className={`h-4 w-4 transition-transform duration-200 ${activeMenu === "men" ? "rotate-180" : ""}`}
                   />
@@ -138,9 +130,9 @@ export default function Header() {
                               href={item.href}
                               className={`text-sm hover:text-gray-600 transition-colors ${item.featured ? "font-medium" : ""}`}
                             >
-                              {item.name}
+                              {translate(item.name, language)}
                               {item.featured && (
-                                <span className="ml-2 text-xs text-oldmoney-green">{translate("Featured")}</span>
+                                <span className="ml-2 text-xs text-oldmoney-green">{translate("Featured", language)}</span>
                               )}
                             </Link>
                           ))}
@@ -157,7 +149,7 @@ export default function Header() {
                 onMouseLeave={() => setActiveMenu(null)}
               >
                 <button className="flex items-center space-x-1 text-sm font-medium py-2">
-                  <span>{translate("SHOP WOMEN")}</span>
+                  <span>{translate("SHOP WOMEN", language)}</span>
                   <ChevronDown
                     className={`h-4 w-4 transition-transform duration-200 ${activeMenu === "women" ? "rotate-180" : ""}`}
                   />
@@ -180,9 +172,9 @@ export default function Header() {
                               href={item.href}
                               className={`text-sm hover:text-gray-600 transition-colors ${item.featured ? "font-medium" : ""}`}
                             >
-                              {item.name}
+                              {translate(item.name, language)}
                               {item.featured && (
-                                <span className="ml-2 text-xs text-oldmoney-green">{translate("Featured")}</span>
+                                <span className="ml-2 text-xs text-oldmoney-green">{translate("Featured", language)}</span>
                               )}
                             </Link>
                           ))}
@@ -199,7 +191,7 @@ export default function Header() {
                 onMouseLeave={() => setActiveMenu(null)}
               >
                 <button className="flex items-center space-x-1 text-sm font-medium py-2">
-                  <span>{translate("SUPPORT")}</span>
+                  <span>{translate("SUPPORT", language)}</span>
                   <ChevronDown
                     className={`h-4 w-4 transition-transform duration-200 ${activeMenu === "support" ? "rotate-180" : ""}`}
                   />
@@ -222,7 +214,7 @@ export default function Header() {
                               href={item.href}
                               className="text-sm hover:text-gray-600 transition-colors"
                             >
-                              {translate(item.name)}
+                              {translate(item.name, language)}
                             </Link>
                           ))}
                         </div>
@@ -240,11 +232,38 @@ export default function Header() {
             </div>
 
             <div className="flex items-center space-x-4">
-              {/* Currency Dropdown */}
+              {/* Language Switcher */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`text-sm ${language === 'de' ? 'bg-gray-100' : ''}`}
+                  onClick={() => {
+                    setLanguage('de');
+                    setCurrency('EUR');
+                  }}
+                >
+                  DE
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`text-sm ${language === 'en' ? 'bg-gray-100' : ''}`}
+                  onClick={() => {
+                    setLanguage('en');
+                    setCurrency('USD');
+                  }}
+                >
+                  EN
+                </Button>
+              </div>
+
+              {/* Currency Selector */}
               <div className="relative" ref={currencyMenuRef}>
                 <button
                   className="flex items-center space-x-1 text-sm"
                   onClick={() => setCurrencyMenuOpen(!currencyMenuOpen)}
+                  aria-label={translate("Select Currency", language)}
                 >
                   <span>
                     {currency === "USD" && "🇺🇸"}
@@ -252,10 +271,7 @@ export default function Header() {
                     {currency === "GBP" && "🇬🇧"}
                   </span>
                   <span className="hidden sm:inline">
-                    {currency}
-                    {currency === "USD" && "$"}
-                    {currency === "EUR" && "€"}
-                    {currency === "GBP" && "£"}
+                    {translate(currency, language)}
                   </span>
                   <ChevronDown
                     className={`h-4 w-4 transition-transform duration-200 ${currencyMenuOpen ? "rotate-180" : ""}`}
@@ -276,65 +292,21 @@ export default function Header() {
                         className="flex items-center space-x-2 p-1 w-full text-left text-sm hover:bg-gray-100 rounded transition-colors"
                       >
                         <span>🇺🇸</span>
-                        <span>USD $</span>
+                        <span>{translate("USD", language)}</span>
                       </button>
                       <button
                         onClick={() => handleCurrencyChange("EUR")}
                         className="flex items-center space-x-2 p-1 w-full text-left text-sm hover:bg-gray-100 rounded transition-colors"
                       >
                         <span>🇪🇺</span>
-                        <span>EUR €</span>
+                        <span>{translate("EUR", language)}</span>
                       </button>
                       <button
                         onClick={() => handleCurrencyChange("GBP")}
                         className="flex items-center space-x-2 p-1 w-full text-left text-sm hover:bg-gray-100 rounded transition-colors"
                       >
                         <span>🇬🇧</span>
-                        <span>GBP £</span>
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* Language Dropdown */}
-              <div className="relative hidden sm:block" ref={languageMenuRef}>
-                <button
-                  className="flex items-center space-x-1 text-sm"
-                  onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
-                >
-                  <span>{language}</span>
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform duration-200 ${languageMenuOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-
-                <AnimatePresence>
-                  {languageMenuOpen && (
-                    <motion.div
-                      className="absolute right-0 top-full mt-2 w-32 bg-white shadow-lg rounded-md p-2 z-10"
-                      initial={{ opacity: 0, y: 10, height: 0 }}
-                      animate={{ opacity: 1, y: 0, height: "auto" }}
-                      exit={{ opacity: 0, y: 10, height: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <button
-                        onClick={() => handleLanguageChange("English")}
-                        className="p-1 w-full text-left text-sm hover:bg-gray-100 rounded transition-colors"
-                      >
-                        English
-                      </button>
-                      <button
-                        onClick={() => handleLanguageChange("Français")}
-                        className="p-1 w-full text-left text-sm hover:bg-gray-100 rounded transition-colors"
-                      >
-                        Français
-                      </button>
-                      <button
-                        onClick={() => handleLanguageChange("Deutsch")}
-                        className="p-1 w-full text-left text-sm hover:bg-gray-100 rounded transition-colors"
-                      >
-                        Deutsch
+                        <span>{translate("GBP", language)}</span>
                       </button>
                     </motion.div>
                   )}
@@ -375,7 +347,7 @@ export default function Header() {
 
               <div className="space-y-6 py-6">
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider">{translate("SHOP MEN")}</h3>
+                  <h3 className="text-sm font-semibold uppercase tracking-wider">{translate("SHOP MEN", language)}</h3>
                   <div className="grid grid-cols-2 gap-2 pl-4">
                     {menuData.men.map((item) => (
                       <Link
@@ -384,9 +356,9 @@ export default function Header() {
                         className="text-sm py-2 flex items-center"
                         onClick={toggleMenu}
                       >
-                        {item.name}
+                        {translate(item.name, language)}
                         {item.featured && (
-                          <span className="ml-2 text-xs text-oldmoney-green">{translate("Featured")}</span>
+                          <span className="ml-2 text-xs text-oldmoney-green">{translate("Featured", language)}</span>
                         )}
                       </Link>
                     ))}
@@ -394,7 +366,7 @@ export default function Header() {
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider">{translate("SHOP WOMEN")}</h3>
+                  <h3 className="text-sm font-semibold uppercase tracking-wider">{translate("SHOP WOMEN", language)}</h3>
                   <div className="grid grid-cols-2 gap-2 pl-4">
                     {menuData.women.map((item) => (
                       <Link
@@ -403,9 +375,9 @@ export default function Header() {
                         className="text-sm py-2 flex items-center"
                         onClick={toggleMenu}
                       >
-                        {item.name}
+                        {translate(item.name, language)}
                         {item.featured && (
-                          <span className="ml-2 text-xs text-oldmoney-green">{translate("Featured")}</span>
+                          <span className="ml-2 text-xs text-oldmoney-green">{translate("Featured", language)}</span>
                         )}
                       </Link>
                     ))}
@@ -413,11 +385,11 @@ export default function Header() {
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider">{translate("SUPPORT")}</h3>
+                  <h3 className="text-sm font-semibold uppercase tracking-wider">{translate("SUPPORT", language)}</h3>
                   <div className="grid grid-cols-2 gap-2 pl-4">
                     {menuData.support.map((item) => (
                       <Link key={item.name} href={item.href} className="text-sm py-2" onClick={toggleMenu}>
-                        {translate(item.name)}
+                        {translate(item.name, language)}
                       </Link>
                     ))}
                   </div>
@@ -425,28 +397,31 @@ export default function Header() {
 
                 <div className="pt-6 border-t">
                   <div className="flex items-center justify-between py-3">
-                    <span className="text-sm font-medium">Language</span>
+                    <span className="text-sm font-medium">{translate("Language", language)}</span>
                     <select
                       className="bg-transparent border-none text-sm font-medium focus:ring-0"
                       value={language}
-                      onChange={(e) => setLanguage(e.target.value as any)}
+                      onChange={(e) => {
+                        const newLanguage = e.target.value === 'Deutsch' ? 'de' : 'en';
+                        setLanguage(newLanguage);
+                        setCurrency(newLanguage === 'de' ? 'EUR' : 'USD');
+                      }}
                     >
                       <option value="English">English</option>
-                      <option value="Français">Français</option>
                       <option value="Deutsch">Deutsch</option>
                     </select>
                   </div>
 
                   <div className="flex items-center justify-between py-3">
-                    <span className="text-sm font-medium">Currency</span>
+                    <span className="text-sm font-medium">{translate("Currency", language)}</span>
                     <select
                       className="bg-transparent border-none text-sm font-medium focus:ring-0"
                       value={currency}
                       onChange={(e) => setCurrency(e.target.value as any)}
                     >
-                      <option value="USD">USD ($)</option>
-                      <option value="EUR">EUR (€)</option>
-                      <option value="GBP">GBP (£)</option>
+                      <option value="USD">{translate("USD", language)}</option>
+                      <option value="EUR">{translate("EUR", language)}</option>
+                      <option value="GBP">{translate("GBP", language)}</option>
                     </select>
                   </div>
                 </div>

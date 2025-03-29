@@ -9,6 +9,9 @@ import { useState, useEffect, useRef } from "react"
 import { useStore } from "@/context/store-context"
 import type { FilterState } from "@/components/filter-sidebar"
 import { useInView } from "framer-motion"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 
 export const products = [
   {
@@ -23,6 +26,7 @@ export const products = [
     sizes: ["40", "41", "42", "43", "44"],
     inStock: true,
     saveAmount: 55.0,
+    category: "Shoes"
   },
   {
     id: 2,
@@ -36,6 +40,7 @@ export const products = [
     sizes: ["S", "M", "L", "XL"],
     inStock: true,
     saveAmount: 20.0,
+    category: "Shirts"
   },
   {
     id: 3,
@@ -49,6 +54,7 @@ export const products = [
     sizes: ["40", "41", "42", "43"],
     inStock: true,
     saveAmount: 68.0,
+    category: "Shoes"
   },
   {
     id: 4,
@@ -62,6 +68,7 @@ export const products = [
     sizes: ["S", "M", "L", "XL"],
     inStock: true,
     saveAmount: 30.0,
+    category: "Shirts"
   },
   {
     id: 5,
@@ -75,6 +82,7 @@ export const products = [
     sizes: ["S", "M", "L"],
     inStock: false,
     saveAmount: 20.0,
+    category: "Accessories"
   },
   {
     id: 6,
@@ -88,28 +96,63 @@ export const products = [
     sizes: ["S", "M", "L"],
     inStock: true,
     saveAmount: 50.0,
+    category: "Sweaters"
   },
 ]
 
-// Komponente für Scroll-basierte Animation
-function ProductCard({ product, index, handleAddToCart, addedToCart, currencySymbol }) {
+interface Product {
+  id: number
+  name: string
+  price: number
+  originalPrice?: number
+  image: string
+  category: string
+  size?: string
+  color?: string
+  colors?: string[]
+  saveAmount?: number
+  inStock: boolean
+  rating?: number
+  reviewCount?: number
+}
+
+interface ProductCardProps {
+  product: Product
+  index: number
+  handleAddToCart: (product: Product) => void
+  addedToCart: boolean
+  currencySymbol: string
+}
+
+function ProductCard({ product, index, handleAddToCart, addedToCart, currencySymbol }: ProductCardProps) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, amount: 0.2 })
   const [isHovered, setIsHovered] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
+  const router = useRouter()
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Wenn der Klick auf den "Add to Cart" Button war, nicht navigieren
+    if ((e.target as HTMLElement).closest('button')) {
+      return
+    }
+    router.push(`/product/${product.id}`)
+  }
 
   return (
     <motion.div
       ref={ref}
-      className="group relative"
+      className="group relative cursor-pointer"
       initial={{ opacity: 0, y: 50 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       layout
+      onClick={handleClick}
     >
       <div className="relative aspect-square overflow-hidden bg-gray-100 rounded-sm">
+        {/* Save amount badge */}
         <motion.div
           className="absolute top-2 right-2 z-10 bg-[#2D5D56] text-white text-xs font-medium px-2 py-1"
           initial={{ x: 50, opacity: 0 }}
@@ -117,15 +160,17 @@ function ProductCard({ product, index, handleAddToCart, addedToCart, currencySym
           transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
         >
           SAVE {currencySymbol}
-          {product.saveAmount.toFixed(2)}
+          {product.saveAmount?.toFixed(2) || ""}
         </motion.div>
 
+        {/* Out of stock overlay */}
         {!product.inStock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
             <span className="bg-white px-3 py-1 text-sm font-medium">Ausverkauft</span>
           </div>
         )}
 
+        {/* Favorite button */}
         <motion.div
           className="absolute top-2 left-2 z-10"
           initial={{ opacity: 0 }}
@@ -136,27 +181,24 @@ function ProductCard({ product, index, handleAddToCart, addedToCart, currencySym
             className={`w-8 h-8 rounded-full flex items-center justify-center ${isFavorite ? "bg-red-500 text-white" : "bg-white text-black"}`}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => setIsFavorite(!isFavorite)}
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsFavorite(!isFavorite)
+            }}
           >
             <Heart className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`} />
           </motion.button>
         </motion.div>
 
-        <motion.div
-          style={{
-            scale: isHovered ? 1.1 : 1,
-            transition: "transform 0.7s cubic-bezier(0.25, 0.1, 0.25, 1)",
-          }}
-        >
-          <Image
-            src={product.image || "/placeholder.svg"}
-            alt={product.name}
-            fill
-            className="object-cover object-center"
-          />
-        </motion.div>
+        {/* Product image */}
+        <Image
+          src={product.image || "/placeholder.svg"}
+          alt={product.name}
+          fill
+          className="object-cover object-center"
+        />
 
-        {/* Add to cart button in the center - KORRIGIERT: Kein grauer Hintergrund mehr */}
+        {/* Add to cart button */}
         {product.inStock && (
           <AnimatePresence>
             {isHovered && (
@@ -168,10 +210,13 @@ function ProductCard({ product, index, handleAddToCart, addedToCart, currencySym
                 transition={{ duration: 0.2 }}
               >
                 <motion.button
-                  className="bg-white text-black rounded-full w-12 h-12 flex items-center justify-center shadow-lg"
+                  className="bg-white/90 backdrop-blur-sm text-black rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:bg-white"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => handleAddToCart(product)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleAddToCart(product)
+                  }}
                   aria-label={`Add ${product.name} to cart`}
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
@@ -218,10 +263,10 @@ function ProductCard({ product, index, handleAddToCart, addedToCart, currencySym
         {Array.from({ length: 5 }).map((_, i) => (
           <Star
             key={i}
-            className={`h-4 w-4 ${i < Math.floor(product.rating) ? "fill-current text-black" : "text-gray-300"}`}
+            className={`h-4 w-4 ${i < Math.floor(product.rating || 0) ? "fill-current text-black" : "text-gray-300"}`}
           />
         ))}
-        <span className="ml-1 text-xs text-gray-500">({product.reviewCount})</span>
+        <span className="ml-1 text-xs text-gray-500">({product.reviewCount || 0})</span>
       </motion.div>
 
       <motion.h3
@@ -230,7 +275,10 @@ function ProductCard({ product, index, handleAddToCart, addedToCart, currencySym
         animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
         transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
       >
-        {product.name}
+        <Link href={`/product/${product.id}`}>
+          <span aria-hidden="true" className="absolute inset-0" />
+          {product.name}
+        </Link>
       </motion.h3>
 
       <motion.div
@@ -245,7 +293,7 @@ function ProductCard({ product, index, handleAddToCart, addedToCart, currencySym
         </span>
         <span className="ml-2 text-sm text-gray-500 line-through">
           {currencySymbol}
-          {product.originalPrice.toFixed(2)}
+          {product.originalPrice?.toFixed(2) || ""}
         </span>
       </motion.div>
 
@@ -255,7 +303,7 @@ function ProductCard({ product, index, handleAddToCart, addedToCart, currencySym
         animate={isInView ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
       >
-        {product.colors.map((color, i) => (
+        {product.colors?.map((color, i) => (
           <React.Fragment key={color}>
             {i > 0 && <span className="text-xs text-gray-500">/</span>}
             <span className="text-xs text-gray-500">{color}</span>

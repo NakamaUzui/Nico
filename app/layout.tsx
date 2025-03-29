@@ -6,6 +6,8 @@ import Header from "@/components/header"
 import { ThemeProvider } from "@/components/theme-provider"
 import { StoreProvider } from "@/context/store-context"
 import { TranslationProvider } from "@/context/translation-context"
+import { Toaster } from "@/components/ui/toaster"
+import { LanguageProvider } from "@/context/language-context"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" })
@@ -31,10 +33,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <StoreProvider>
-            <TranslationProvider>
-              <Header />
-              {children}
-            </TranslationProvider>
+            <LanguageProvider>
+              <TranslationProvider>
+                <Header />
+                {children}
+                <Toaster />
+              </TranslationProvider>
+            </LanguageProvider>
           </StoreProvider>
         </ThemeProvider>
       </body>

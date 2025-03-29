@@ -11,7 +11,8 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 import { useStore } from "@/context/store-context"
-import { useTranslation } from "@/context/translation-context"
+import { translate } from "@/utils/translate"
+import { useLanguage } from "@/context/language-context"
 import Image from "next/image"
 
 // Verfügbare Größen und Farben für die Filter
@@ -86,7 +87,7 @@ export default function FilterSidebar({
   onFilterChange?: (filters: FilterState) => void
 }) {
   const { currency } = useStore()
-  const { translate } = useTranslation()
+  const { language } = useLanguage()
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500])
   const [inStockOnly, setInStockOnly] = useState(false)
   const [expandedSections, setExpandedSections] = useState({
@@ -226,7 +227,7 @@ export default function FilterSidebar({
     <>
       {/* Mobile filter button */}
       <div className="lg:hidden mb-4 flex justify-between items-center">
-        <h2 className="text-lg font-medium">{translate("FILTERS")}</h2>
+        <h2 className="text-lg font-medium">{translate("FILTERS", language)}</h2>
         <Button
           variant="outline"
           size="sm"
@@ -234,7 +235,7 @@ export default function FilterSidebar({
           onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
         >
           <Filter className="h-4 w-4" />
-          {translate("FILTERS")}
+          {translate("FILTERS", language)}
           {activeFilters > 0 && (
             <span className="ml-1 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
               {activeFilters}
@@ -254,7 +255,7 @@ export default function FilterSidebar({
             transition={{ duration: 0.3 }}
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-medium">{translate("FILTERS")}</h2>
+              <h2 className="text-lg font-medium">{translate("FILTERS", language)}</h2>
               <Button variant="ghost" size="sm" onClick={() => setMobileFiltersOpen(false)}>
                 <X className="h-5 w-5" />
               </Button>
@@ -263,7 +264,7 @@ export default function FilterSidebar({
             <div className="space-y-6">
               <div className="flex items-center justify-between space-x-2">
                 <Label htmlFor="in-stock-mobile" className="text-sm">
-                  {translate("In stock only")}
+                  {translate("In stock only", language)}
                 </Label>
                 <Switch id="in-stock-mobile" checked={inStockOnly} onCheckedChange={setInStockOnly} />
               </div>
@@ -274,7 +275,7 @@ export default function FilterSidebar({
                   className="flex items-center justify-between w-full text-left font-medium"
                   onClick={() => toggleSection("price")}
                 >
-                  <span>{translate("PRICE")}</span>
+                  <span>{translate("PRICE", language)}</span>
                   {expandedSections.price ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
 
@@ -322,7 +323,7 @@ export default function FilterSidebar({
                   className="flex items-center justify-between w-full text-left font-medium"
                   onClick={() => toggleSection("size")}
                 >
-                  <span>{translate("SIZE")}</span>
+                  <span>{translate("SIZE", language)}</span>
                   {expandedSections.size ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
 
@@ -349,7 +350,7 @@ export default function FilterSidebar({
                   className="flex items-center justify-between w-full text-left font-medium"
                   onClick={() => toggleSection("color")}
                 >
-                  <span>{translate("COLOR")}</span>
+                  <span>{translate("COLOR", language)}</span>
                   {expandedSections.color ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
 
@@ -369,7 +370,7 @@ export default function FilterSidebar({
                             selectedColors.includes(colorOption.name) ? "ring-2 ring-black ring-offset-2" : ""
                           }`}
                         ></span>
-                        <span className="text-xs">{colorOption.name}</span>
+                        <span className="text-xs">{translate(colorOption.name, language)}</span>
                       </button>
                     ))}
                   </div>
@@ -382,7 +383,7 @@ export default function FilterSidebar({
                   className="flex items-center justify-between w-full text-left font-medium"
                   onClick={() => toggleSection("category")}
                 >
-                  <span>CATEGORY</span>
+                  <span>{translate("CATEGORY", language)}</span>
                   {expandedSections.category ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
 
@@ -412,7 +413,8 @@ export default function FilterSidebar({
                   className="flex items-center justify-between w-full text-left font-medium"
                   onClick={() => toggleSection("material")}
                 >
-                  <span>MATERIAL</span>
+                  <span>{translate("MATERIAL", language)}</span>
+                  <span>{translate("MATERIAL")}</span>
                   {expandedSections.material ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
 
@@ -442,7 +444,7 @@ export default function FilterSidebar({
                   className="flex items-center justify-between w-full text-left font-medium"
                   onClick={() => toggleSection("rating")}
                 >
-                  <span>RATING</span>
+                  <span>{translate("RATING", language)}</span>
                   {expandedSections.rating ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </button>
 
@@ -463,7 +465,7 @@ export default function FilterSidebar({
                               className={`h-4 w-4 ${i < rating.value ? "fill-current text-black" : "text-gray-300"}`}
                             />
                           ))}
-                          <span className="ml-2">{rating.value === 1 ? "& up" : `& up`}</span>
+                          <span className="ml-2">{translate("& up", language)}</span>
                         </div>
                         <span className="text-xs text-gray-500">({rating.count})</span>
                       </button>
@@ -478,7 +480,7 @@ export default function FilterSidebar({
                   className="flex items-center justify-between w-full text-left font-medium"
                   onClick={() => toggleSection("sustainability")}
                 >
-                  <span>SUSTAINABILITY</span>
+                  <span>{translate("SUSTAINABILITY", language)}</span>
                   {expandedSections.sustainability ? (
                     <ChevronUp className="h-4 w-4" />
                   ) : (
@@ -490,14 +492,27 @@ export default function FilterSidebar({
                   <div className="mt-4">
                     <div className="flex items-center justify-between space-x-2">
                       <Label htmlFor="sustainable-only" className="text-sm">
-                        Sustainable products only
+                        {translate("Sustainable products only")}
                       </Label>
                       <Switch id="sustainable-only" checked={sustainableOnly} onCheckedChange={setSustainableOnly} />
                     </div>
                     <p className="mt-2 text-xs text-gray-500">
-                      Products that meet our sustainability criteria, including eco-friendly materials and ethical
-                      production.
+                      {translate("Products that meet our sustainability criteria, including eco-friendly materials and ethical production.")}
                     </p>
+                    <div className="mt-3 p-2 bg-[#f8f9f4] rounded-md border border-[#e0e3d7]">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-[#2D5D56]" />
+                        <span className="text-xs">{translate("Eco-friendly materials")}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Check className="h-4 w-4 text-[#2D5D56]" />
+                        <span className="text-xs">{translate("Ethical production")}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Check className="h-4 w-4 text-[#2D5D56]" />
+                        <span className="text-xs">{translate("Reduced carbon footprint")}</span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -505,10 +520,10 @@ export default function FilterSidebar({
 
             <div className="mt-8 flex gap-2">
               <Button className="flex-1" onClick={() => setMobileFiltersOpen(false)}>
-                {translate("Apply Filters")} {activeFilters > 0 && `(${activeFilters})`}
+                {translate("Apply Filters", language)} {activeFilters > 0 && `(${activeFilters})`}
               </Button>
               <Button variant="outline" className="flex-1" onClick={resetFilters} disabled={activeFilters === 0}>
-                {translate("Reset")}
+                {translate("Reset", language)}
               </Button>
             </div>
           </motion.div>
@@ -518,17 +533,17 @@ export default function FilterSidebar({
       {/* Desktop filters */}
       <div className="hidden lg:block space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium">{translate("FILTERS")}</h2>
+          <h2 className="text-lg font-medium">{translate("FILTERS", language)}</h2>
           {activeFilters > 0 && (
             <Button variant="ghost" size="sm" onClick={resetFilters} className="text-xs">
-              {translate("Reset all")}
+              {translate("Reset all", language)}
             </Button>
           )}
         </div>
 
         <div className="flex items-center justify-between space-x-2">
           <Label htmlFor="in-stock" className="text-sm">
-            {translate("In stock only")}
+            {translate("In stock only", language)}
           </Label>
           <Switch id="in-stock" checked={inStockOnly} onCheckedChange={setInStockOnly} />
         </div>
@@ -539,7 +554,7 @@ export default function FilterSidebar({
             className="flex items-center justify-between w-full text-left font-medium"
             onClick={() => toggleSection("price")}
           >
-            <span>{translate("PRICE")}</span>
+            <span>{translate("Price Range", language)}</span>
             {expandedSections.price ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
 
@@ -595,7 +610,7 @@ export default function FilterSidebar({
             className="flex items-center justify-between w-full text-left font-medium"
             onClick={() => toggleSection("size")}
           >
-            <span>{translate("SIZE")}</span>
+            <span>{translate("Size", language)}</span>
             {expandedSections.size ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
 
@@ -632,7 +647,7 @@ export default function FilterSidebar({
             className="flex items-center justify-between w-full text-left font-medium"
             onClick={() => toggleSection("color")}
           >
-            <span>{translate("COLOR")}</span>
+            <span>{translate("Color", language)}</span>
             {expandedSections.color ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
 
@@ -661,7 +676,7 @@ export default function FilterSidebar({
                         selectedColors.includes(colorOption.name) ? "ring-2 ring-black ring-offset-2" : ""
                       }`}
                     ></span>
-                    <span className="text-xs">{colorOption.name}</span>
+                    <span className="text-xs">{translate(colorOption.name, language)}</span>
                   </motion.button>
                 ))}
               </motion.div>
@@ -675,7 +690,7 @@ export default function FilterSidebar({
             className="flex items-center justify-between w-full text-left font-medium"
             onClick={() => toggleSection("category")}
           >
-            <span>CATEGORY</span>
+            <span>{translate("CATEGORY", language)}</span>
             {expandedSections.category ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
 
@@ -713,7 +728,7 @@ export default function FilterSidebar({
             className="flex items-center justify-between w-full text-left font-medium"
             onClick={() => toggleSection("material")}
           >
-            <span>MATERIAL</span>
+            <span>{translate("MATERIAL", language)}</span>
             {expandedSections.material ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
 
@@ -751,7 +766,7 @@ export default function FilterSidebar({
             className="flex items-center justify-between w-full text-left font-medium"
             onClick={() => toggleSection("rating")}
           >
-            <span>RATING</span>
+            <span>{translate("RATING", language)}</span>
             {expandedSections.rating ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
 
@@ -780,7 +795,7 @@ export default function FilterSidebar({
                           className={`h-4 w-4 ${i < rating.value ? "fill-current text-black" : "text-gray-300"}`}
                         />
                       ))}
-                      <span className="ml-2">{rating.value === 1 ? "& up" : `& up`}</span>
+                      <span className="ml-2">{translate("& up", language)}</span>
                     </div>
                     <span className="text-xs text-gray-500">({rating.count})</span>
                   </motion.button>
@@ -796,7 +811,7 @@ export default function FilterSidebar({
             className="flex items-center justify-between w-full text-left font-medium"
             onClick={() => toggleSection("sustainability")}
           >
-            <span>SUSTAINABILITY</span>
+            <span>{translate("SUSTAINABILITY", language)}</span>
             {expandedSections.sustainability ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
 
@@ -811,26 +826,25 @@ export default function FilterSidebar({
               >
                 <div className="flex items-center justify-between space-x-2">
                   <Label htmlFor="sustainable-only" className="text-sm">
-                    Sustainable products only
+                    {translate("Sustainable products only")}
                   </Label>
                   <Switch id="sustainable-only" checked={sustainableOnly} onCheckedChange={setSustainableOnly} />
                 </div>
                 <p className="mt-2 text-xs text-gray-500">
-                  Products that meet our sustainability criteria, including eco-friendly materials and ethical
-                  production.
+                  {translate("Products that meet our sustainability criteria, including eco-friendly materials and ethical production.")}
                 </p>
                 <div className="mt-3 p-2 bg-[#f8f9f4] rounded-md border border-[#e0e3d7]">
                   <div className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-[#2D5D56]" />
-                    <span className="text-xs">Eco-friendly materials</span>
+                    <span className="text-xs">{translate("Eco-friendly materials")}</span>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     <Check className="h-4 w-4 text-[#2D5D56]" />
-                    <span className="text-xs">Ethical production</span>
+                    <span className="text-xs">{translate("Ethical production")}</span>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     <Check className="h-4 w-4 text-[#2D5D56]" />
-                    <span className="text-xs">Reduced carbon footprint</span>
+                    <span className="text-xs">{translate("Reduced carbon footprint")}</span>
                   </div>
                 </div>
               </motion.div>
@@ -844,7 +858,7 @@ export default function FilterSidebar({
             className="flex items-center justify-between w-full text-left font-medium"
             onClick={() => toggleSection("bestsellers")}
           >
-            <span>BESTSELLERS</span>
+            <span>{translate("BESTSELLERS", language)}</span>
             {expandedSections.bestsellers ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
 
@@ -886,7 +900,7 @@ export default function FilterSidebar({
                   className="text-xs text-[#2D5D56] font-medium hover:underline w-full text-center mt-2"
                   whileHover={{ scale: 1.03 }}
                 >
-                  View all bestsellers
+                  {translate("View all bestsellers", language)}
                 </motion.button>
               </motion.div>
             )}
@@ -899,7 +913,7 @@ export default function FilterSidebar({
             className="flex items-center justify-between w-full text-left font-medium"
             onClick={() => toggleSection("newsletter")}
           >
-            <span>NEWSLETTER</span>
+            <span>{translate("Stay Updated", language)}</span>
             {expandedSections.newsletter ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
 
@@ -913,7 +927,7 @@ export default function FilterSidebar({
                 transition={{ duration: 0.3 }}
               >
                 <p className="text-xs text-gray-600 mb-3">
-                  Subscribe to our newsletter and get 10% off your first order.
+                  {translate("Subscribe to our newsletter and get 10% off your first order.", language)}
                 </p>
                 {isSubscribed ? (
                   <motion.div
@@ -922,7 +936,7 @@ export default function FilterSidebar({
                     className="p-3 bg-[#f8f9f4] rounded-md border border-[#e0e3d7] text-center"
                   >
                     <Check className="h-5 w-5 text-[#2D5D56] mx-auto mb-1" />
-                    <p className="text-sm font-medium text-[#2D5D56]">Thank you for subscribing!</p>
+                    <p className="text-sm font-medium text-[#2D5D56]">{translate("Thank you for subscribing!", language)}</p>
                   </motion.div>
                 ) : (
                   <form onSubmit={handleSubscribe} className="space-y-2">
@@ -930,7 +944,7 @@ export default function FilterSidebar({
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Input
                         type="email"
-                        placeholder="Your email address"
+                        placeholder={translate("Your email address", language)}
                         className="pl-10"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -938,7 +952,7 @@ export default function FilterSidebar({
                       />
                     </div>
                     <Button type="submit" className="w-full bg-black hover:bg-gray-800">
-                      Subscribe
+                      {translate("Subscribe", language)}
                     </Button>
                   </form>
                 )}
@@ -949,7 +963,7 @@ export default function FilterSidebar({
 
         {/* Social Media */}
         <div className="border-t pt-4">
-          <h3 className="font-medium mb-3">FOLLOW US</h3>
+          <h3 className="font-medium mb-3">{translate("FOLLOW US", language)}</h3>
           <div className="flex items-center gap-3">
             <motion.a
               href="#"
